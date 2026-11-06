@@ -1,0 +1,25 @@
+{
+  "name": "spacewars",
+  "version": "1.0.0",
+  "description": "---",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mr-chen-rui/spacewars-II.git"
+  },
+  "keywords": [],
+  "author": "mr-chen-rui",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mr-chen-rui/spacewars-II/issues"
+  },
+  "homepage": "https://github.com/mr-chen-rui/spacewars-II#readme",
+  "dependencies": {
+    "vite": "^8.3.6"
+  }
+}
