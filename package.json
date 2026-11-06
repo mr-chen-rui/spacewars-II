@@ -1,8 +1,9 @@
 {
   "name": "spacewars",
   "version": "1.0.0",
-  "description": "---",
-  "main": "index.js",
+  "type":"module",
+  "description": "A little AI training thing that plays my (heavily altered) form of Spacewar!!",
+  "main": "./main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",

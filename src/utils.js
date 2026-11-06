@@ -1,4 +1,4 @@
-class Vector2 {
+export class Vector2 {
     constructor(x = 0, y = 0){
         this.x = x;
         this.y = y;
@@ -35,7 +35,7 @@ class Vector2 {
     }
 }
 
-class Input{
+export class Input{
     constructor(acceleration = false, left_turn = false, right_turn = false){
         this.acceleration = acceleration;
         this.left_turn = left_turn;
@@ -44,7 +44,7 @@ class Input{
     }
 }
 
-class Output{
+export class Output{
     constructor(playerPos, playerVelocity, playerRotation, targetPosition, gravity){
         this.playerPos = playerPos;
         this.playerVelocity = playerVelocity;

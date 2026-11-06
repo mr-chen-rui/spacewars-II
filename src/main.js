@@ -1,10 +1,10 @@
-import * as Game from "game"
+import * as Game from "./game.js"
 
-canvas = document.getElementById("screen")
-html = document.getElementsByTagName("html")[0]
+var canvas = document.getElementById("screen")
+var html = document.getElementsByTagName("html")[0]
 
-canvasWidth = canvas.clientWidth
-canvasHeight = canvas.clientWidth/2
+var canvasWidth = canvas.clientWidth
+var canvasHeight = canvas.clientWidth/2
 
 function resize_screen(){ // Haven't connected this one yet
     canvas.setAttribute("width", html.clientWidth)

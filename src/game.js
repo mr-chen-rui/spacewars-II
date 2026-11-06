@@ -1,9 +1,9 @@
-import { Vector2, Input, Output } from 'utils'
+import { Vector2, Input, Output } from './utils'
 
-var totalFuelUsed = 0;
-var gameScreenRadius = 500;
+export var totalFuelUsed = 0;
+export var gameScreenRadius = 500;
 
-class Player{
+export class Player{
     constructor(position, rotation){
         this.position = position;
         this.velocity = new Vector2();
@@ -33,28 +33,28 @@ class Player{
     }
 }
 
-class Target{
+export class Target{
     constructor(){
-        distanceFromCenter = (gameScreenRadius * Math.sqrt(Math.random()));
-        theta = Math.random() * 2 * Math.pi;
+        var distanceFromCenter = (gameScreenRadius * Math.sqrt(Math.random()));
+        var theta = Math.random() * 2 * Math.pi;
 
-        this.position = new Vector2(cos(theta), sin(theta)).multiply(distanceFromCenter);
+        this.position = new Vector2(Math.cos(theta), Math.sin(theta)).multiply(distanceFromCenter);
     }
 }
 
-var target = new Target();
-var player = new Player(new Vector2(-100,0), 0);
+export var target = new Target();
+export var player = new Player(new Vector2(-100,0), 0);
 
-function resetWorld(){
+export function resetWorld(){
     totalFuelUsed = 0;
     target = new Target();
     player = new Player(new Vector2(-100,0), 0);
 }
 
-function physicsStep(input, delta = 0.1){
+export function physicsStep(input, delta = 0.1){
     player.physicsStep(input, delta);
 }
 
-function getGameData(){
+export function getGameData(){
     return new Output(player.position, player.velocity, player.rotation, target.position, player.getGravity());
 }
