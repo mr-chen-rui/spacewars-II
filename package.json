@@ -1,7 +1,7 @@
 {
   "name": "spacewars",
   "version": "1.0.0",
-  "type":"module",
+  "type": "module",
   "description": "A little AI training thing that plays my (heavily altered) form of Spacewar!!",
   "main": "./main.js",
   "scripts": {
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/mr-chen-rui/spacewars-II#readme",
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "vite": "^8.3.6"
   }
 }
