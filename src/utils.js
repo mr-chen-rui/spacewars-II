@@ -37,7 +37,7 @@ export class Vector2 {
     }
 
     gameSpaceToScreenSpace(){
-        var screenSpaceOrigin = new Vector2(60, 50);
+        var screenSpaceOrigin = new Vector2(100, 50);
         return this.divide(500).add(screenSpaceOrigin)
     }
 

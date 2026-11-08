@@ -23,15 +23,12 @@ export function drawPlayer(ctx, pos, rot){
     ctx.stroke();
 }
 
-export function drawOrigin(ctx){
-
-}
-
 export function drawTarget(ctx, pos){
 
 }
 
 export function drawBackground(ctx){
+    ctx.clearRect(0,0,200,100)
     ctx.beginPath(); // Important to clear current path.
     ctx.fillStyle = "black";
     ctx.arc(100, 50, 40, 0, 360);
