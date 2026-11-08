@@ -1,3 +1,5 @@
+import * as tfjs from "@tensorflow/tfjs"
+
 export class Vector2 {
     constructor(x = 0, y = 0){
         this.x = x;
@@ -33,6 +35,15 @@ export class Vector2 {
     normalize(){
         return new Vector2(this.x / this.magnitude(), this.y / this.magnitude());
     }
+
+    gameSpaceToScreenSpace(){
+        var screenSpaceOrigin = new Vector2(100, 50);
+        return this.divide(500).add(screenSpaceOrigin)
+    }
+
+    rotateAroundOrigin(theta){
+        return new Vector2(this.x * Math.cos(theta) - this.y * Math.sin(theta),this.x * Math.sin(theta) - this.y * Math.cos(theta));
+    }
 }
 
 export class Input{
@@ -41,6 +52,10 @@ export class Input{
         this.left_turn = left_turn;
         this.right_turn = right_turn;
         Object.freeze(this);
+    }
+
+    get tensor(){
+        return tfjs.tensor([this.acceleration ? 1 : 0, this.left_turn ? 1 : 0, this.right_turn ? 1 : 0])
     }
 }
 
@@ -52,5 +67,9 @@ export class Output{
         this.targetPosition = targetPosition;
         this.gravity = gravity;
         Object.freeze(this);
+    }
+
+    get tensor(){
+        return tfjs.tensor([this.playerPos.x, this.playerPos.y, this.playerVelocity.x, this.playerVelocity.y, this.playerRotation, this.targetPosition.x, this.targetPosition.y, this.gravity])
     }
 }

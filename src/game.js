@@ -11,18 +11,23 @@ export class Player{
         this.rotation = rotation;
     }
 
-    get direction() {return new Vector2(Math.cos(rotation), Math.sin(rotation))}
+    get direction() {
+        this.rotation = this.rotation % 360
+        return new Vector2(Math.cos(this.rotation), Math.sin(this.rotation));
+    }
 
-
+    get alive(){
+        return this.position.magnitude() < gameScreenRadius;
+    }
 
     getGravity() {
-        return this.position.multiply(-1) * 0.1;
+        return this.position.multiply(-1).multiply(0.1);
     }
 
     physicsStep(input, delta) {
         this.forces = this.getGravity();
         if (input.acceleration){
-            this.forces = this.forces.add(this.direction * 2);
+            this.forces = this.forces.add(this.direction.multiply(2));
         }
         if (input.left_turn){
             this.rotation -= Math.PI/100;
@@ -30,6 +35,10 @@ export class Player{
         if (input.right_turn){
             this.rotation += Math.PI/100;
         }
+
+        // F=MA but we assume M is 1 so F=A
+
+        this.velocity.add(this.forces);
     }
 }
 
