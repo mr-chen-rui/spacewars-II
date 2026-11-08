@@ -2,7 +2,7 @@ import {Vector2, Input, Output} from "./utils"
 
 const playerAsPoints = [new Vector2(0,1), new Vector2(-1,-1), new Vector2(0,-0.5), new Vector2(1,-1)];
 
-var scale = 1000;
+var scale = 3;
 
 export function drawPlayer(ctx, pos, rot){
     var playerRotated = new Array(4)
@@ -24,7 +24,10 @@ export function drawPlayer(ctx, pos, rot){
 }
 
 export function drawTarget(ctx, pos){
-
+    ctx.fillStyle = "#4287f5"
+    ctx.beginPath();
+    ctx.arc(pos.gameSpaceToScreenSpace().x, pos.gameSpaceToScreenSpace().y, 3, 0, 2 * Math.PI);
+    ctx.fill();
 }
 
 export function drawBackground(ctx){

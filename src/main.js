@@ -74,9 +74,13 @@ function calculateInput(){
 }
 
 function draw(ctx){
+    ctx.beginPath()
 
     Screen.drawBackground(ctx)
+    Screen.drawTarget(ctx, Game.target.position)
     Screen.drawPlayer(ctx, Game.player.position, Game.player.rotation + 2 * Math.PI)
+
+    console.log(Game.player.position)
 }
 
 function physicsStep(){

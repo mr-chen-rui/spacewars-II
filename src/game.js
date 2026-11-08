@@ -1,7 +1,7 @@
 import { Vector2, Input, Output } from './utils'
 
 export var totalFuelUsed = 0;
-export var gameScreenRadius = 500;
+export var gameScreenRadius = 100;
 
 export class Player{
     constructor(position, rotation){
@@ -27,13 +27,13 @@ export class Player{
     }
 
     getGravity() {
-        return this.position.multiply(-1).multiply(0.0001);
+        return this.position.multiply(-1).multiply(0.00001);
     }
 
     physicsStep(input, delta) {
         this.forces = this.getGravity();
         if (input.acceleration){
-            this.forces = this.forces.add(this.direction.multiply(delta));
+            this.forces = this.forces.add(this.direction.multiply(delta).multiply(0.001));
         }
         if (input.left_turn){
             this.rotation -= Math.PI/100;
@@ -53,9 +53,10 @@ export class Player{
 export class Target{
     constructor(){
         var distanceFromCenter = (gameScreenRadius * Math.sqrt(Math.random()));
-        var theta = Math.random() * 2 * Math.pi;
+        var theta = Math.random() * 2 * Math.PI;
 
         this.position = new Vector2(Math.cos(theta), Math.sin(theta)).multiply(distanceFromCenter);
+        console.log(this.position)
     }
 }
 

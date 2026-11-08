@@ -1,4 +1,5 @@
 import * as tfjs from "@tensorflow/tfjs"
+import { gameScreenRadius } from "./game";
 
 export class Vector2 {
     constructor(x = 0, y = 0){
@@ -38,7 +39,7 @@ export class Vector2 {
 
     gameSpaceToScreenSpace(){
         var screenSpaceOrigin = new Vector2(100, 50);
-        return this.divide(500).add(screenSpaceOrigin)
+        return this.divide(gameScreenRadius / 40).add(screenSpaceOrigin)
     }
 
     rotateAroundOrigin(theta){
