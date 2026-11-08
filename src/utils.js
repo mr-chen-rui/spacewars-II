@@ -37,12 +37,12 @@ export class Vector2 {
     }
 
     gameSpaceToScreenSpace(){
-        var screenSpaceOrigin = new Vector2(100, 50);
+        var screenSpaceOrigin = new Vector2(60, 50);
         return this.divide(500).add(screenSpaceOrigin)
     }
 
     rotateAroundOrigin(theta){
-        return new Vector2(this.x * Math.cos(theta) - this.y * Math.sin(theta),this.x * Math.sin(theta) - this.y * Math.cos(theta));
+        return new Vector2((this.x * Math.cos(theta)) - (this.y * Math.sin(theta)),(this.x * Math.sin(theta)) + (this.y * Math.cos(theta)));
     }
 }
 
