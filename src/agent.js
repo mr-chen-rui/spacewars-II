@@ -85,3 +85,22 @@ class DQNAgent{ // why does DQN stand for Deep Q learNing
         return info.history.loss[0];
   }
 }
+
+// I decided to implement epsilon-greedy exploration 
+
+var epsilon = 1.0;
+const min_epsilon = 0.05;
+const decay = 0.995;
+
+function chooseAction(agent, input) {
+    if (Math.random < epsilon){ // explore
+        return Math.floor(Math.random() * 6)
+    }
+    else{
+        return tf.tidy(() => { // be greedy
+            const inputTensor = tf.tensor2d([stateArray], [1, 9]);
+            const predictions = agent.model.predict(input.tensor);
+            return predictions.argMax(1).dataSync()[0];
+        });
+    }
+}
