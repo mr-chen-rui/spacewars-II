@@ -71,6 +71,6 @@ export class Output{
     }
 
     get tensor(){
-        return tfjs.tensor([this.playerPos.x, this.playerPos.y, this.playerVelocity.x, this.playerVelocity.y, this.playerRotation, this.targetPosition.x, this.targetPosition.y, this.gravity])
+        return tfjs.tensor2d([this.playerPos.x, this.playerPos.y, this.playerVelocity.x, this.playerVelocity.y, this.playerRotation, this.targetPosition.x, this.targetPosition.y, this.gravity], [1, 9])
     }
 }

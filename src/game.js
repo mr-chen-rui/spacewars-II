@@ -1,6 +1,6 @@
 import { Vector2, Input, Output } from './utils'
 
-export var totalFuelUsed = 0;
+
 export var gameScreenRadius = 100;
 
 export class Player{
@@ -62,9 +62,12 @@ export class Target{
 
 export var target = new Target();
 export var player = new Player(new Vector2(-100,0), 0);
+export var fuelUsed = 0;
+export var timeElapsed = 0;
 
 export function resetWorld(){
-    totalFuelUsed = 0;
+    fuelUsed = 0;
+    timeElapsed = 0;
     target = new Target();
     player = new Player(new Vector2(-100,0), 0);
 }
@@ -75,4 +78,12 @@ export function physicsStep(input, delta = 0.1){
 
 export function getGameData(){
     return new Output(player.position, player.velocity, player.rotation, target.position, player.getGravity());
+}
+
+export function getScore(){
+    return 
+}
+
+export function getFitness(fuelUsedSinceLastTick, delta){
+    return target.position.subtract(player.position).magnitude - (fuelUsedSinceLastTick + delta) 
 }
