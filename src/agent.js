@@ -98,7 +98,6 @@ function chooseAction(agent, input) {
     }
     else{
         return tf.tidy(() => { // be greedy
-            const inputTensor = tf.tensor2d([stateArray], [1, 9]);
             const predictions = agent.model.predict(input.tensor);
             return predictions.argMax(1).dataSync()[0];
         });

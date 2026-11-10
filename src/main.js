@@ -12,6 +12,11 @@ const ctx = canvas.getContext("2d");
 
 var input = new Input(false, false, false);
 
+var scoredisplay = document.getElementById("score")
+var fueldisplay = document.getElementById("fuel")
+var timedisplay = document.getElementById("time")
+
+
 
 function resize_screen(event){ // Haven't connected this one yet
     canvas.setAttribute("width", main.clientWidth - 20)
@@ -61,12 +66,15 @@ function calculateInput(){
     for (var event_code of code){
         if (event_code == 87 || event_code == 38){
             accelerating = true
+            Game.fuelUsed += 1;
         }
         if (event_code == 65 || event_code == 37){
             left_turn = true
+            Game.fuelUsed += 0.1;
         }
         if (event_code == 68 || event_code == 39){
             right_turn = true
+            Game.fuelUsed += 0.1;
         }
     }
 
@@ -84,6 +92,8 @@ function draw(ctx){
 }
 
 function physicsStep(){
+    Game.timeElapsed += 1;
+    
 
     calculateInput()
     Game.player.physicsStep(input, 1)
