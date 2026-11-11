@@ -22,10 +22,6 @@ export class Player{
         return new Vector2(Math.cos(this.rotation + Math.PI/2), Math.sin(this.rotation + Math.PI/2));
     }
 
-    get alive(){
-        return this.position.magnitude() < gameScreenRadius;
-    }
-
     getGravity() {
         return this.position.multiply(-1).multiply(0.00001);
     }
@@ -62,8 +58,20 @@ export class Target{
 
 export var target = new Target();
 export var player = new Player(new Vector2(-100,0), 0);
+
+export function isGameFinished(){
+    return target.position.dist_to(player.position) < 0.5
+}
+
 export var fuelUsed = 0;
+export function addFuelUsed(value){
+    fuelUsed += value
+}
+
 export var timeElapsed = 0;
+export function addTimeElapsed(value){
+    timeElapsed += value
+}
 
 export function resetWorld(){
     fuelUsed = 0;

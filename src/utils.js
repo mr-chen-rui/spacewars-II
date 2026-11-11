@@ -26,7 +26,7 @@ export class Vector2 {
     }
 
     dist_to(vector){
-        return Math.sqrt((this.x - vector.x,2)**2 + (this.x - vector.x,2)**2);
+        return Math.sqrt((this.x - vector.x)**2 + (this.x - vector.x)**2);
     }
 
     magnitude(){
