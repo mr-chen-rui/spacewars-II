@@ -99,8 +99,6 @@ function draw(ctx){
 
 function physicsStep(){
     if (Game.isGameFinished() == false){
-        console.log("Stepping...")
-        console.log(Game.target.position.dist_to(Game.player.position))
         if (current_state == 0){
             Game.addTimeElapsed(0.001)
         

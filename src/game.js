@@ -60,7 +60,7 @@ export var target = new Target();
 export var player = new Player(new Vector2(-100,0), 0);
 
 export function isGameFinished(){
-    return target.position.dist_to(player.position) < 0.5
+    return target.position.dist_to(player.position) < 20
 }
 
 export var fuelUsed = 0;
