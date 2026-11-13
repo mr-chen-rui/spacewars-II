@@ -1,4 +1,4 @@
-import {Vector2, Input, Output} from "./utils"
+import {Vector2, Input, Output} from "./utils.js"
 
 const playerAsPoints = [new Vector2(0,1), new Vector2(-1,-1), new Vector2(0,-0.5), new Vector2(1,-1)];
 
