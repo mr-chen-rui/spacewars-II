@@ -23,6 +23,9 @@
             <p id="time">
                 Time Spent (S):
             </p>
+            <b id="training">
+
+            </b>
         </div>
         <canvas id="screen"></canvas>
         <div id="buttons">
@@ -37,6 +40,8 @@
         Copyright <b>Ryan Xie</b>, 2026
         <br>
         No AI was used in the making of this website (except for the AI playing the game, I needed Gemini to help with <b>tensorflow</b> because I have pea brain). Made with vanilla JavaScript, HTML, and CSS. 
+        <br>
+        IMPORTANT NOTE: When you click the "start training" button, the game will block for about half a second. As far as I can tell, there is no way to create a tag saying training is happening, so you must wait for the "training done" status at the top.
         <br>
         Check out some of my other cool things!
         <div class="Hbox">
@@ -78,7 +83,9 @@ main{
 #stats p{
     color: white;
 }
-
+#stats b{
+    color: maroon;
+}
 
 #buttons{
     display: flex;
@@ -107,7 +114,7 @@ h1{
 
 footer{
     bottom:0;
-    height:200px;
+    height:15rem;
     background:#AAAAAA;
     
 }

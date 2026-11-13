@@ -58,6 +58,31 @@ export class Input{
     get tensor(){
         return tfjs.tensor([this.acceleration ? 1 : 0, this.left_turn ? 1 : 0, this.right_turn ? 1 : 0])
     }
+
+    get array(){
+        if (this.acceleration){
+            if (this.right_turn){
+                return 4
+            }
+            if (this.left_turn){
+                return 5
+            }
+            
+            return 6
+            
+        }
+        else {
+            if (this.right_turn){
+                return 1
+            }
+            if (this.left_turn){
+                return 2
+            }
+            
+            return 3
+            
+        }
+    }
 }
 
 export class Output{
@@ -71,6 +96,14 @@ export class Output{
     }
 
     get tensor(){
-        return tfjs.tensor2d([this.playerPos.x, this.playerPos.y, this.playerVelocity.x, this.playerVelocity.y, this.playerRotation, this.targetPosition.x, this.targetPosition.y, this.gravity], [1, 9])
+        return tfjs.tensor2d([this.playerPos.x, this.playerPos.y, this.playerVelocity.x, this.playerVelocity.y, this.playerRotation, this.targetPosition.x, this.targetPosition.y, this.gravity.x, this.gravity.y], [1, 9])
     }
+
+    get array(){
+        return [this.playerPos.x, this.playerPos.y, this.playerVelocity.x, this.playerVelocity.y, this.playerRotation, this.targetPosition.x, this.targetPosition.y, this.gravity.x, this.gravity.y]
+    }
+}
+
+export function round(value){
+    return Math.round(value * 10) / 10;
 }

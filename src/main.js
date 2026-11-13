@@ -1,6 +1,13 @@
 import * as Game from "./game.js"
 import * as Screen from "./renderer.js"
-import { Vector2, Input, Output } from "./utils.js"
+import * as Agent from "./agent.js"
+import { Vector2, Input, Output, round } from "./utils.js"
+
+/* 
+    Hello! If you're reading this, you're probably the reviewer. This project went wayyy overtime and took me
+    way too long to figure out how to use tfjs. This is an extremely simple game because I couldn't figure out how to 
+    calculate whether a projectile hits a moving target in nonuniform gravity :(
+*/
 
 const canvas = document.getElementById("screen")
 const main = document.getElementsByTagName("main")[0]
@@ -17,6 +24,7 @@ var current_state = 0 // 0 means player is playing, 1 means training, 2 means AI
 const scoredisplay = document.getElementById("score")
 const fueldisplay = document.getElementById("fuel")
 const timedisplay = document.getElementById("time")
+const trainingdisplay = document.getElementById("training")
 
 const playButton = document.getElementById("play")
 const trainButton = document.getElementById("train")
@@ -61,76 +69,165 @@ function getNumberArray(arr){
 }
 
 function calculateInput(){
-    var code = getNumberArray(keys)
+    var code = getNumberArray(keys);
 
-    var accelerating = false
-    var left_turn = false
-    var right_turn = false
+    var accelerating = false;
+    var left_turn = false;
+    var right_turn = false;
 
     for (var event_code of code){
         if (event_code == 87 || event_code == 38){
-            accelerating = true
-            Game.addFuelUsed(1);
+            accelerating = true;
+            
         }
         if (event_code == 65 || event_code == 37){
-            left_turn = true
-            Game.addFuelUsed(0.1);
+            left_turn = true;
+            
         }
         if (event_code == 68 || event_code == 39){
-            right_turn = true
-            Game.addFuelUsed(0.1);
+            right_turn = true;
+            
         }
     }
 
-    input = new Input(accelerating, left_turn, right_turn);
+    return new Input(accelerating, left_turn, right_turn);
 }
 
 function draw(ctx){
-    ctx.beginPath()
+    ctx.beginPath();
 
-    Screen.drawBackground(ctx)
-    Screen.drawTarget(ctx, Game.target.position)
-    Screen.drawPlayer(ctx, Game.player.position, Game.player.rotation + 2 * Math.PI)
+    Screen.drawBackground(ctx);
+    Screen.drawTarget(ctx, Game.target.position);
+    Screen.drawPlayer(ctx, Game.player.position, Game.player.rotation + 2 * Math.PI);
 
     timedisplay.textContent = `Time Elapsed: ${round(Game.timeElapsed)}`
     fueldisplay.textContent = `Fuel Used: ${round(Game.fuelUsed)}`
-    scoredisplay.textContent = `Score: ${round(50 / Math.max(Game.fuelUsed, 0.1) + 50 / Math.max(Game.timeElapsed, 0.1))}`
+    scoredisplay.textContent = `Score: ${Game.getScore()}`
 }
 
+const agent = new Agent.DQN()
+
 function physicsStep(){
+    requestAnimationFrame(physicsStep)
     if (Game.isGameFinished() == false){
+
         if (current_state == 0){
-            Game.addTimeElapsed(0.001)
+            Game.addTimeElapsed(0.001);
         
-            calculateInput()
-            Game.player.physicsStep(input, 1)
-            draw(ctx)
+            Game.player.physicsStep(calculateInput(), 1);
+            draw(ctx);
         }
 
+        if (current_state == 1){
+            // Moved training code to its own async function
+
+            
+        }
+
+        if (current_state == 2){
+            Game.addTimeElapsed(0.001);
+
+            const output = Game.getGameData();
+            var input = agent.act(output.array);
+            console.log(input)
+
+            var accelerating = false;
+            var right_turn = false;
+            var left_turn = false;
+
+            if (input == 1 || input == 4){
+                right_turn = true;
+            }
+
+            else if (input == 2 || input == 5){
+                left_turn = true;
+            }
+
+            if (input == 6 || input == 4 || input == 5){
+                accelerating = true
+            }
+
+            input = new Input(accelerating, left_turn, right_turn)
+
+            console.log(input)
+
+            Game.physicsStep(input, 1);
+            draw(ctx)
+        }
         
     }
-    
 
-    
-    requestAnimationFrame(physicsStep,1)
+}
 
+async function train(){
+    Game.addTimeElapsed(0.001);
+
+    const output = Game.getGameData();
+    const input = agent.act(output.array);
+
+    var accelerating = false;
+    var right_turn = false;
+    var left_turn = false;
+
+    if (input == 1 || input == 4){
+        right_turn = true;
+    }
+
+    else if (input == 2 || input == 5){
+        left_turn = true;
+    }
+
+    if (input == 6 || input == 4 || input == 5){
+        accelerating = true
+    }
+
+    Game.physicsStep(new Input(accelerating, left_turn, right_turn), 1);
+
+    agent.pushMemory([output.array, input.array, Game.getFitness(1), Game.getGameData().array, Game.isGameFinished()]);
+}
+
+async function runTraining(){
+    Game.resetWorld()
+    
+    current_state = 1
+
+    var iterations = 0
+    while (iterations < 1000){
+        train()
+        iterations += 1
+    }
+
+    for (var i = 0; i < 50; i++){
+        agent.replay();
+    }
 }
 
 function startGame(e){
-    if (Game.isGameFinished()){
-        if (current_state != 1){
-            Game.resetWorld();
+    if (current_state != 1){
+        Game.resetWorld();
+        current_state = 0;
 
-        }
     }
+
+}
+
+async function trainAI(e){
+    trainingdisplay.textContent = ""
+
+    console.log("Training...")
+    requestAnimationFrame(runTraining)
+    await runTraining()
+    trainingdisplay.textContent = "Finished Training"
 }
 
 
-function round(value){
-    return Math.round(value * 10) / 10;
+function watchAI(e){
+    Game.resetWorld();
+    current_state = 2;
 }
 
-playButton.addEventListener("click", startGame)
-
+playButton.addEventListener("click", startGame);
+trainButton.addEventListener("click", trainAI);
+watchButton.addEventListener("click", watchAI);
 
 physicsStep()

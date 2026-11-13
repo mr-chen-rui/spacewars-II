@@ -1,4 +1,4 @@
-import { Vector2, Input, Output } from './utils'
+import { Vector2, Input, Output, round } from './utils'
 
 
 export var gameScreenRadius = 100;
@@ -27,15 +27,20 @@ export class Player{
     }
 
     physicsStep(input, delta) {
+        previousDistanceFromTarget = target.position.subtract(this.position).magnitude();
         this.forces = this.getGravity();
+        fuelUsedSinceLastTick = 0;
         if (input.acceleration){
             this.forces = this.forces.add(this.direction.multiply(delta).multiply(0.001));
+            addFuelUsed(1);
         }
         if (input.left_turn){
             this.rotation -= Math.PI/100;
+            addFuelUsed(0.1);
         }
         if (input.right_turn){
             this.rotation += Math.PI/100;
+            addFuelUsed(0.1);
         }
 
         // F=MA but we assume M is 1 so F=A
@@ -49,23 +54,26 @@ export class Player{
 export class Target{
     constructor(){
         var distanceFromCenter = (gameScreenRadius * Math.sqrt(Math.random()));
-        var theta = Math.random() * 2 * Math.PI;
+        var theta = (Math.random() * Math.PI) - Math.PI/2
 
         this.position = new Vector2(Math.cos(theta), Math.sin(theta)).multiply(distanceFromCenter);
         console.log(this.position)
     }
 }
 
-export var target = new Target();
 export var player = new Player(new Vector2(-100,0), 0);
+export var target = new Target();
 
 export function isGameFinished(){
-    return target.position.dist_to(player.position) < 20
+    return target.position.dist_to(player.position) < 10
 }
 
 export var fuelUsed = 0;
-export function addFuelUsed(value){
+var fuelUsedSinceLastTick = 0;
+
+function addFuelUsed(value){
     fuelUsed += value
+    fuelUsedSinceLastTick += value
 }
 
 export var timeElapsed = 0;
@@ -76,8 +84,9 @@ export function addTimeElapsed(value){
 export function resetWorld(){
     fuelUsed = 0;
     timeElapsed = 0;
-    target = new Target();
+    
     player = new Player(new Vector2(-100,0), 0);
+    target = new Target();
 }
 
 export function physicsStep(input, delta = 0.1){
@@ -89,9 +98,11 @@ export function getGameData(){
 }
 
 export function getScore(){
-    return 
+    return round((50 / Math.max(fuelUsed, 0.1) + 50 / Math.max(timeElapsed, 0.1)))
 }
 
-export function getFitness(fuelUsedSinceLastTick, delta){
-    return target.position.subtract(player.position).magnitude - (fuelUsedSinceLastTick + delta) 
+var previousDistanceFromTarget = 999;
+
+export function getFitness(delta){
+    return player.position.subtract(target.position).magnitude() * 10 - (fuelUsedSinceLastTick * delta) *0.1
 }

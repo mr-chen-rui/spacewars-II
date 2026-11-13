@@ -1,105 +1,182 @@
-import * as tfjs from "@tensorflow/tfjs"
-import * as model from "./model"
-import {Input, Output, Vector2} from "./utils"
+import * as tf from '@tensorflow/tfjs'
 
-const GAMMA = 0.99;
-const BATCH_SIZE = 32;
-const MEMORY_SIZE = 10000;
-const LEARNING_RATE = 0.0005;
+/**
+ * Replay Buffer to store and sample agent experiences (transitions).
+ */
+class ReplayBuffer {
+  constructor(capacity = 100) {
+    this.capacity = capacity;
+    this.buffer = [];
+  }
 
-class DQNAgent{ // why does DQN stand for Deep Q learNing
-    constructor(model) {
-        this.model = model;
-        this.memory = [];
+  // Push a single experience into memory
+  push(experience) {
+    if (this.buffer.length >= this.capacity) {
+      this.buffer.shift(); // Remove oldest memory if full
     }
+    this.buffer.push(experience);
+  }
 
-    remember(state, action, reward, nextState, done){ // Make the model add a snapshot to memory
-        if (this.memory.length >= MEMORY_SIZE) {
-            this.memory.shift(); // Remove oldest memory if full
-        }
-        this.memory.push({ state, action, reward, nextState, done });
+  /**
+   * Push a batch of experiences into memory
+   * @param {Array} experiences - Array of experience objects: { state, action, reward, nextState, done }
+   */
+  pushBatch(experiences) {
+    for (const exp of experiences) {
+      this.push(exp);
     }
+  }
 
-    async trainStep() { // this part is by Gemini ------------------------------------
-        // Only train if we have gathered enough memory samples
-        if (this.memory.length < BATCH_SIZE) return;
+  // Sample a random batch of experiences for training
+  sample(batchSize) {
+    const batch = [];
+    const currentSize = this.buffer.length;
+    const size = Math.min(batchSize, currentSize);
+    
+    // Simple random sampling without replacement
+    const indices = [];
+    while (indices.length < size) {
+      const randomIndex = Math.floor(Math.random() * currentSize);
+      if (!indices.includes(randomIndex)) {
+        indices.push(randomIndex);
+        batch.push(this.buffer[randomIndex]);
+      }
+    }
+    return batch;
+  }
 
-        // Pick a random sample batch from our experience memory bank
-        const batch = [];
-        for (let i = 0; i < BATCH_SIZE; i++) {
-            const randomIndex = Math.floor(Math.random() * this.memory.length);
-            batch.push(this.memory[randomIndex]);
-        }
-
-        // Extract arrays to batch tensors
-        const states = batch.map(b => b.state);
-        const nextStates = batch.map(b => b.nextState);
-
-        // Minimize memory leaks using tf.tidy()
-        const loss = tf.tidy(() => { 
-            const stateTensor = tf.tensor2d(states, [BATCH_SIZE, 9]);
-            const nextStateTensor = tf.tensor2d(nextStates, [BATCH_SIZE, 9]);
-
-            // Predict current Q-values and next Q-values
-            const currentQs = this.model.predict(stateTensor);
-            const nextQs = this.model.predict(nextStateTensor);
-
-            // Extract raw JS arrays out of tensors to manipulate target values
-            const currentQsArray = currentQs.arraySync();
-            const nextQsArray = nextQs.arraySync();
-
-            // Bellman Equation implementation: Update targeted values 
-            for (let i = 0; i < BATCH_SIZE; i++) {
-                const targetAction = batch[i].action; // Integer (0 to 5)
-                
-                if (batch[i].done) {
-                    // If the game ended on this step, target is just the final reward
-                    currentQsArray[i][targetAction] = batch[i].reward;
-                } else {
-                    // Otherwise, target is Reward + (Gamma * Max predicted future reward)
-                    const maxFutureQ = Math.max(...nextQsArray[i]);
-                    currentQsArray[i][targetAction] = batch[i].reward + (GAMMA * maxFutureQ);
-                }
-            }
-
-            // Convert updated values back to a tensor target
-            const targetTensor = tf.tensor2d(currentQsArray, [BATCH_SIZE, 6]);
-
-        // Compute loss to update network weights via a single gradient step
-            return {
-                stateTensor,
-                targetTensor
-            };
-        });
-
-        // Fit the model weights with our calculated targets
-        const info = await this.model.fit(loss.stateTensor, loss.targetTensor, {
-            epochs: 1,
-            verbose: 0 // Keep console clean during quick frames
-        });
-
-        // Cleanup batch tensors from GPU/CPU memory
-        loss.stateTensor.dispose();
-        loss.targetTensor.dispose();
-        
-        return info.history.loss[0];
+  size() {
+    return this.buffer.length;
   }
 }
 
-// I decided to implement epsilon-greedy exploration 
+export class DQN {
+    constructor(options = {}) {
+        this.stateSize = options.stateSize || 9;     // 9 float inputs
+        this.actionSize = options.actionSize || 6;   // 6 discrete actions (1 to 6)
+        
+        // Hyperparameters
+        this.gamma = options.gamma || 0.95;          // Discount factor
+        this.epsilon = options.epsilon || 1.0;       // Initial exploration rate
+        this.epsilonMin = options.epsilonMin || 0.01; // Minimum exploration rate
+        this.epsilonDecay = options.epsilonDecay || 0.9999; // Decay rate per episode
+        this.learningRate = options.learningRate || 0.001;
 
-var epsilon = 1.0;
-const min_epsilon = 0.05;
-const decay = 0.995;
+        // Initialize Experience Replay Memory
+        this.memory = new ReplayBuffer(options.memoryCapacity || 10000);
 
-function chooseAction(agent, input) {
-    if (Math.random < epsilon){ // explore
-        return Math.floor(Math.random() * 6)
+        // Build neural networks
+        this.model = this.createModel();
+        this.targetModel = this.createModel();
+        this.updateTargetModel(); // Sync weights
+
+        this.optimizer = tf.train.adam(this.learningRate);
     }
-    else{
-        return tf.tidy(() => { // be greedy
-            const predictions = agent.model.predict(input.tensor);
-            return predictions.argMax(1).dataSync()[0];
+
+    createModel() {
+        const model = tf.sequential();
+        
+        model.add(tf.layers.dense({
+            units: 24,
+            activation: 'relu',
+            inputShape: [this.stateSize]
+        }));
+        
+        model.add(tf.layers.dense({
+            units: 24,
+            activation: 'relu'
+        }));
+        
+        model.add(tf.layers.dense({
+            units: this.actionSize,
+            activation: 'linear'
+        }));
+
+        return model;
+    }
+
+    updateTargetModel() {
+        const weights = this.model.getWeights();
+        const targetWeights = weights.map(w => w.clone());
+        this.targetModel.setWeights(targetWeights);
+    }
+
+    act(state) {
+        this.decayEpsilon()
+        if (Math.random() < this.epsilon) {
+        return Math.floor(Math.random() * this.actionSize) + 1; // 1 to 6
+        }
+        
+
+        return tf.tidy(() => {
+        const stateTensor = tf.tensor2d([state]);
+        const predictions = this.model.predict(stateTensor);
+        const actionIndex = predictions.argMax(1).dataSync()[0];
+        return actionIndex + 1; // 1 to 6
         });
+    }
+
+    decayEpsilon() {
+        if (this.epsilon > this.epsilonMin) {
+        this.epsilon *= this.epsilonDecay;
+        }
+    }
+
+    /**
+     * Helper method to push a batch of experiences directly into the DQN's memory
+     * @param {Array} experiences - Array of transitions
+     */
+    pushMemory(experiences) {
+        this.memory.push(experiences);
+    }
+
+    /**
+     * Train the model by sampling a batch from its memory buffer
+     * @param {number} batchSize - Number of samples to train on
+     */
+    async replay(batchSize = 32) {
+        if (this.memory.size() < batchSize) return; // Not enough memories yet
+
+        const batch = this.memory.sample(batchSize);
+
+        const states = batch.flatMap(exp => exp[0]);
+        const nextStates = batch.flatMap(exp => exp[3]);
+
+
+        const stateTensor = tf.tensor2d(states, [batch.length, this.stateSize]);
+        const nextStateTensor = tf.tensor2d(nextStates, [batch.length, this.stateSize]);
+
+        const currentQ = this.model.predict(stateTensor);
+        const nextQ = this.targetModel.predict(nextStateTensor);
+
+        const currentQData = currentQ.arraySync();
+        const nextQData = nextQ.arraySync();
+
+        for (let i = 0; i < batch.length; i++) {
+        const { action, reward, done } = batch[i];
+        const actionIndex = action - 1; // Map 1-6 to 0-5
+
+        let target = reward;
+        if (!done) {
+            const maxNextQ = Math.max(...nextQData[i]);
+            target = reward + this.gamma * maxNextQ;
+        }
+
+        currentQData[i][actionIndex] = target;
+        }
+
+        const targetTensor = tf.tensor2d(currentQData);
+
+        await this.optimizer.minimize(() => {
+        const prediction = this.model.predict(stateTensor);
+        return tf.losses.meanSquaredError(targetTensor, prediction);
+        });
+
+        // Clean up tensors
+        stateTensor.dispose();
+        nextStateTensor.dispose();
+        currentQ.dispose();
+        nextQ.dispose();
+        targetTensor.dispose();
     }
 }
