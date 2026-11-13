@@ -1,4 +1,4 @@
-import { Vector2, Input, Output, round } from './utils'
+import { Vector2, Input, Output, round } from './utils.js'
 
 
 export var gameScreenRadius = 100;
