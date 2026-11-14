@@ -153,7 +153,7 @@ export class DQN {
         const nextQData = nextQ.arraySync();
 
         for (let i = 0; i < batch.length; i++) {
-        const { action, reward, done } = batch[i];
+        const [state, action, reward, nextstate, done] = batch[i];
         const actionIndex = action - 1; // Map 1-6 to 0-5
 
         let target = reward;
@@ -167,10 +167,12 @@ export class DQN {
 
         const targetTensor = tf.tensor2d(currentQData);
 
-        await this.optimizer.minimize(() => {
-        const prediction = this.model.predict(stateTensor);
-        return tf.losses.meanSquaredError(targetTensor, prediction);
+        this.optimizer.minimize(() => {
+          const prediction = this.model.apply(stateTensor, { training: true });
+          return tf.losses.meanSquaredError(targetTensor, prediction);
         });
+
+        console.log(this.model)
 
         // Clean up tensors
         stateTensor.dispose();

@@ -192,13 +192,12 @@ async function runTraining(){
     current_state = 1
 
     var iterations = 0
-    while (iterations < 1000){
+    while (iterations < 10000){
         train()
         iterations += 1
-    }
-
-    for (var i = 0; i < 50; i++){
-        agent.replay();
+        if (iterations % 100 == 0){
+            agent.replay();
+        }
     }
 }
 
