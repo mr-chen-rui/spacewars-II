@@ -103,7 +103,18 @@ export function getScore(){
 
 var previousDistanceFromTarget = 999;
 
-export function getFitness(delta){
+export function getFitness(delta){ 
+    // If the player is really, really close to the target we give it a big reward.
+    // If the player is pointing towards the target, we also give it a reward.
+    // Using fuel = small penalty
+    // ofc we give it a reward if it points towards the target
+
+    var distanceFromTarget = player.position.subtract(target.position).magnitude()
+
+    var proximityReward = distanceFromTarget < 50 ? 100 / distanceFromTarget : 0
+    var fuelPenalty = fuelUsedSinceLastTick + 0.5
+    var improvementReward = (previousDistanceFromTarget - distanceFromTarget)
+    var directionReward = player.direction.dot(target.position.subtract(player.position).normalize()) * 10
     
-    return 10 * (previousDistanceFromTarget - player.position.subtract(target.position).magnitude()) - (fuelUsedSinceLastTick * delta) *0.1
+    return improvementReward + proximityReward - fuelPenalty + directionReward
 }

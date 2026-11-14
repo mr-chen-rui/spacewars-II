@@ -190,13 +190,12 @@ async function train(){
     Game.physicsStep(new Input(accelerating, left_turn, right_turn), 1);
 
     agent.pushMemory([output.array, input.array, Game.getFitness(1), Game.getGameData().array, Game.isGameFinished()]);
-
-    console.log(Game.getFitness(1))
 }
 
 
 function startGame(e){
     if (current_state != 1){
+        trainingdisplay.textContent = ""
         Game.resetWorld();
         current_state = 0;
 
@@ -214,6 +213,7 @@ async function trainAI(e){
 
 
 function watchAI(e){
+    trainingdisplay.textContent = ""
     Game.resetWorld();
     current_state = 2;
 }

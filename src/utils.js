@@ -37,6 +37,10 @@ export class Vector2 {
         return new Vector2(this.x / this.magnitude(), this.y / this.magnitude());
     }
 
+    dot(vector){
+        return (this.x * vector.x) + (this.y * vector.y);
+    }
+
     gameSpaceToScreenSpace(){
         var screenSpaceOrigin = new Vector2(100, 50);
         return this.divide(gameScreenRadius / 40).add(screenSpaceOrigin)
