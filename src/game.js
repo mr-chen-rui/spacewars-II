@@ -104,5 +104,6 @@ export function getScore(){
 var previousDistanceFromTarget = 999;
 
 export function getFitness(delta){
-    return 500 / player.position.subtract(target.position).magnitude() - (fuelUsedSinceLastTick * delta) *0.1
+    
+    return 10 * (previousDistanceFromTarget - player.position.subtract(target.position).magnitude()) - (fuelUsedSinceLastTick * delta) *0.1
 }

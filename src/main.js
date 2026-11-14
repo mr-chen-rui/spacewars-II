@@ -156,6 +156,12 @@ function physicsStep(){
         }
         
     }
+    if (current_state == 1){
+        for (var i = 0; i < 10; i++){
+            train()
+        }
+        requestAnimationFrame(() => agent.replay()) // binding "this" to the callback
+    }
 
 }
 
@@ -184,22 +190,10 @@ async function train(){
     Game.physicsStep(new Input(accelerating, left_turn, right_turn), 1);
 
     agent.pushMemory([output.array, input.array, Game.getFitness(1), Game.getGameData().array, Game.isGameFinished()]);
+
+    console.log(Game.getFitness(1))
 }
 
-async function runTraining(){
-    Game.resetWorld()
-    
-    current_state = 1
-
-    var iterations = 0
-    while (iterations < 10000){
-        train()
-        iterations += 1
-        if (iterations % 100 == 0){
-            agent.replay();
-        }
-    }
-}
 
 function startGame(e){
     if (current_state != 1){
@@ -211,12 +205,11 @@ function startGame(e){
 }
 
 async function trainAI(e){
-    trainingdisplay.textContent = ""
+    trainingdisplay.textContent = "Training... (press any other button to stop)"
+    Game.resetWorld()
 
     console.log("Training...")
-    requestAnimationFrame(runTraining)
-    await runTraining()
-    trainingdisplay.textContent = "Finished Training"
+    current_state = 1
 }
 
 

@@ -134,8 +134,8 @@ export class DQN {
      * Train the model by sampling a batch from its memory buffer
      * @param {number} batchSize - Number of samples to train on
      */
-    async replay(batchSize = 32) {
-        if (this.memory.size() < batchSize) return; // Not enough memories yet
+    replay(batchSize = 32) {
+        if (this.memory.size() < batchSize) {return}; // Not enough memories yet
 
         const batch = this.memory.sample(batchSize);
 
@@ -171,8 +171,6 @@ export class DQN {
           const prediction = this.model.apply(stateTensor, { training: true });
           return tf.losses.meanSquaredError(targetTensor, prediction);
         });
-
-        console.log(this.model)
 
         // Clean up tensors
         stateTensor.dispose();
