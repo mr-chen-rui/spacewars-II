@@ -115,6 +115,7 @@ function physicsStep(){
             Game.addTimeElapsed(0.001);
         
             Game.player.physicsStep(calculateInput(), 1);
+            console.log(Game.getFitness())
             draw(ctx);
         }
 
@@ -129,7 +130,7 @@ function physicsStep(){
 
             const output = Game.getGameData();
             var input = agent.act(output.array);
-            console.log(input)
+            // console.log(input)
 
             var accelerating = false;
             var right_turn = false;
@@ -149,7 +150,7 @@ function physicsStep(){
 
             input = new Input(accelerating, left_turn, right_turn)
 
-            console.log(input)
+            // console.log(input)
 
             Game.physicsStep(input, 1);
             draw(ctx)
@@ -188,6 +189,7 @@ async function train(){
     }
 
     Game.physicsStep(new Input(accelerating, left_turn, right_turn), 1);
+    // console.log("Reward: ", Game.getFitness(1))
 
     agent.pushMemory([output.array, input.array, Game.getFitness(1), Game.getGameData().array, Game.isGameFinished()]);
 }

@@ -9,6 +9,7 @@ export class Player{
         this.velocity = new Vector2();
         this.forces = new Vector2();
         this.rotation = rotation;
+        this.accelerating = false;
     }
 
     get direction() {
@@ -27,10 +28,12 @@ export class Player{
     }
 
     physicsStep(input, delta) {
+        this.accelerating = false;
         previousDistanceFromTarget = target.position.subtract(this.position).magnitude();
         this.forces = this.getGravity();
         fuelUsedSinceLastTick = 0;
         if (input.acceleration){
+            this.accelerating = true;
             this.forces = this.forces.add(this.direction.multiply(delta).multiply(0.001));
             addFuelUsed(1);
         }
@@ -57,7 +60,7 @@ export class Target{
         var theta = (Math.random() * Math.PI) - Math.PI/2
 
         this.position = new Vector2(Math.cos(theta), Math.sin(theta)).multiply(distanceFromCenter);
-        console.log(this.position)
+        // console.log(this.position)
     }
 }
 
@@ -104,17 +107,12 @@ export function getScore(){
 var previousDistanceFromTarget = 999;
 
 export function getFitness(delta){ 
-    // If the player is really, really close to the target we give it a big reward.
-    // If the player is pointing towards the target, we also give it a reward.
-    // Using fuel = small penalty
-    // ofc we give it a reward if it points towards the target
+    // If player facing target and accelerating, it gets big reward
+    var distToTarget = player.position.subtract(target.position).magnitude()
 
-    var distanceFromTarget = player.position.subtract(target.position).magnitude()
-
-    var proximityReward = distanceFromTarget < 50 ? 100 / distanceFromTarget : 0
-    var fuelPenalty = fuelUsedSinceLastTick + 0.5
-    var improvementReward = (previousDistanceFromTarget - distanceFromTarget)
-    var directionReward = player.direction.dot(target.position.subtract(player.position).normalize()) * 10
+    var directionReward = player.direction.dot(target.position.subtract(player.position).normalize())
+    var accelerationReward = player.accelerating && directionReward > 0.5 ? 10 : 1
+    var proximityReward = distToTarget < 100 ? 1/distToTarget * 500 : 0
     
-    return improvementReward + proximityReward - fuelPenalty + directionReward
+    return directionReward * accelerationReward + proximityReward;
 }
