@@ -59,7 +59,7 @@ export class DQN {
     this.gamma = options.gamma || 0.95;          // Discount factor
     this.epsilon = options.epsilon || 1.0;       // Initial exploration rate
     this.epsilonMin = options.epsilonMin || 0.01; // Minimum exploration rate
-    this.epsilonDecay = options.epsilonDecay || 0.99999999999; // Decay rate per episode
+    this.epsilonDecay = options.epsilonDecay || 0.995; // Decay rate per episode
     this.learningRate = options.learningRate || 0.001;
 
     // Initialize Experience Replay Memory
@@ -195,7 +195,7 @@ export class DQN {
 
           return loss;
       });
-    console.log("Training Loss:", lossValue);
+    // console.log("Training Loss:", lossValue);
     });
   }
 }

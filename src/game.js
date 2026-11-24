@@ -110,9 +110,9 @@ export function getFitness(delta){
     // If player facing target and accelerating, it gets big reward
     var distToTarget = player.position.subtract(target.position).magnitude()
 
-    var directionReward = player.direction.dot(target.position.subtract(player.position).normalize())
-    var accelerationReward = player.accelerating && directionReward > 0.5 ? 10 : 1
-    var proximityReward = distToTarget < 100 ? 1/distToTarget * 500 : 0
+    var directionReward = player.direction.dot(target.position.subtract(player.position).normalize()) * 5
+    var accelerationReward = player.accelerating && directionReward > 2 ? 10 : 1
+    var proximityReward = distToTarget < 100 ? 1/distToTarget * 50 : 0
     
     return directionReward * accelerationReward + proximityReward;
 }

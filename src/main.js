@@ -115,7 +115,7 @@ function physicsStep(){
             Game.addTimeElapsed(0.001);
         
             Game.player.physicsStep(calculateInput(), 1);
-            console.log(Game.getFitness())
+            // console.log(Game.getFitness())
             draw(ctx);
         }
 
@@ -162,6 +162,7 @@ function physicsStep(){
             train()
         }
         requestAnimationFrame(() => agent.replay()) // binding "this" to the callback
+        agent.model.summary()
     }
 
 }
@@ -191,7 +192,7 @@ async function train(){
     Game.physicsStep(new Input(accelerating, left_turn, right_turn), 1);
     // console.log("Reward: ", Game.getFitness(1))
 
-    agent.pushMemory([output.array, input.array, Game.getFitness(1), Game.getGameData().array, Game.isGameFinished()]);
+    agent.pushMemory([output.array, input, Game.getFitness(1), Game.getGameData().array, Game.isGameFinished()]);
 }
 
 
@@ -209,7 +210,7 @@ async function trainAI(e){
     trainingdisplay.textContent = "Training... (press any other button to stop)"
     Game.resetWorld()
 
-    console.log("Training...")
+    // console.log("Training...")
     current_state = 1
 }
 
